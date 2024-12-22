@@ -7,7 +7,7 @@ const Signup = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
+  const router = useRouter(); 
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
