@@ -20,6 +20,7 @@ Clone this project to your local machine:
 ```bash
 git clone <repository-url>
 cd Attendance
+npm i
 
 ### 2. Setup the the postgress DB
 
