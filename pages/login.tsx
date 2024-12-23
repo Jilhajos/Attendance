@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import '../styles/global.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -23,34 +24,44 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
-      {error && <p>{error}</p>}
-            {/* Link to Sign Up page */}
-            <p>
-        Don't have an account?{' '}
-        <Link href="/signup">
-          Sign up here
-        </Link>
-      </p>
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="login-title">Login</h1>
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
+          {error && <p className="error-message">{error}</p>}
+          <button type="submit" className="login-button">
+            Login
+          </button>
+        </form>
+        <p className="signup-link">
+          Don't have an account?{' '}
+          <Link href="/signup">
+            Sign up here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
-
 
 export default Login;

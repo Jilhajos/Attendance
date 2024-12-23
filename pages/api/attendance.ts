@@ -1,45 +1,34 @@
 // pages/api/attendance.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
-import fs from 'fs';
-import path from 'path';
+import { db } from '@vercel/postgres';
 
-const attendanceFilePath = path.join(process.cwd(), 'data', 'attendance.json');
+const client = await db.connect();
 
-// Read attendance data from JSON file
-const readAttendance = () => {
-  if (fs.existsSync(attendanceFilePath)) {
-    const data = fs.readFileSync(attendanceFilePath, 'utf-8');
-    return JSON.parse(data);
-  }
-  return [];
-};
-
-// Write attendance data to JSON file
-const writeAttendance = (attendance: { username: string; timestamp: string }[]) => {
-  fs.writeFileSync(attendanceFilePath, JSON.stringify(attendance, null, 2), 'utf-8');
-};
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { token } = req.body;
-
+    const { token, status } = req.body;
+    if (status !== 'present' && status !== 'absent') {
+      return res.status(400).json({ message: 'Invalid status, must be "present" or "absent"' });
+    }
     try {
-      // Verify JWT token
+      const tableQuery = `
+      CREATE TABLE IF NOT EXISTS attendance (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        status VARCHAR(50) NOT NULL CHECK (status IN ('present', 'absent')),
+        date VARCHAR(255) NOT NULL
+      )`;      
+      const createTable = await client.query(tableQuery);
+     
       const decoded = jwt.verify(token, 'secret_key') as { username: string };
-
-      // Read existing attendance data
-      const attendance = readAttendance();
-
-      // Mark attendance
-      const timestamp = new Date().toISOString();
-      attendance.push({ username: decoded.username, timestamp });
-
-      // Write updated attendance data back to file
-      writeAttendance(attendance);
-
-      return res.status(200).json({ message: `Attendance marked for ${decoded.username}` });
+      const date = new Date().toISOString().split('T')[0];
+      const query = 'INSERT INTO attendance(username, status, date) VALUES($1, $2, $3)';
+      const values = [decoded.username, status, date];
+      await client.query(query, values);
+      return res.status(200).json({ message: `Attendance marked as ${status} for ${decoded.username} on ${date}` });
     } catch (error) {
+      console.error(error);
       return res.status(401).json({ message: 'Invalid or expired token' });
     }
   } else {
