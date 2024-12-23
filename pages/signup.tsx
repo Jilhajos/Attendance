@@ -1,19 +1,16 @@
-// pages/signup.tsx
+
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import '../styles/global.css';
-
 const Signup = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       await axios.post('/api/signup', { username, password });
       router.push('/login');
@@ -21,7 +18,6 @@ const Signup = () => {
       setError('Error creating user');
     }
   };
-
   return (
     <div className="signup-container">
       <div className="signup-card">
